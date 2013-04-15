@@ -31,6 +31,27 @@
 			expect(textField.getAttribute("class")).to.equal(example.REQUIRED_FIELD_CLASS);
 		});
 
+		it("follows link when field is not empty", function() {
+			var eventCancelled;
+			submitLink.addEventListener("click", function(event) {
+				eventCancelled = event.defaultPrevented;
+			});
+
+			textField.value = "not empty";
+			clickSubmitLink();
+			expect(eventCancelled).to.be(false);
+		});
+
+		it("does not follow link when field is empty", function() {
+			var eventCancelled;
+			submitLink.addEventListener("click", function(event) {
+				eventCancelled = event.defaultPrevented;
+			});
+
+			clickSubmitLink();
+			expect(eventCancelled).to.be(true);
+		});
+
 		function clickSubmitLink() {
 			var event = document.createEvent("MouseEvent");
 			event.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
