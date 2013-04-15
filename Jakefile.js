@@ -3,27 +3,46 @@
 (function() {
 	"use strict";
 
+	var REQUIRED_BROWSERS = [
+//		"IE 8.0 (Windows)",  // NOTE: IE 8 is not supported. See the readme for details.
+//		"IE 9.0 (Windows)",
+//		"Firefox 20.0 (Mac)",
+//		"Chrome 26.0 (Mac)",
+//		"Safari 6.0 (Mac)",
+//		"Safari 6.0 (iOS)"
+	];
+
 	var lint = require("./build/util/lint_runner.js");
+	var karma = require("./build/util/karma_runner.js");
 
 	desc("Lint and test");
-	task("default", ["lint"], function() {
+	task("default", ["lint", "test"], function() {
 		console.log("\n\nOK");
 	});
 
+	desc("Start Karma server -- run this first");
+	task("karma", function() {
+		karma.serve(complete, fail);
+	}, {async: true});
+
 	desc("Lint everything");
 	task("lint", [], function() {
-		var passed = lint.validateFileList(filesToLint(), lintOptions(), {});
+		var passed = lint.validateFileList(browserFilesToLint(), browserLintOptions(), {});
 		if (!passed) fail("Lint failed");
 	});
 
-	function filesToLint() {
+	desc("Test everything");
+	task("test", function() {
+		karma.runTests(REQUIRED_BROWSERS, complete, fail);
+	}, {async: true});
+
+	function browserFilesToLint() {
 		var files = new jake.FileList();
-//		files.include("src/*.js");
-		files.include("Jakefile.js");
+		files.include("src/*.js");
 		return files.toArray();
 	}
 
-	function lintOptions() {
+	function globalLintOptions() {
 		return {
 			bitwise: true,
 			curly: false,
@@ -38,9 +57,14 @@
 			regexp: true,
 			undef: true,
 			strict: true,
-			trailing: true,
-			browser: true
+			trailing: true
 		};
+	}
+
+	function browserLintOptions() {
+		var options = globalLintOptions();
+		options.browser = true;
+		return options;
 	}
 
 }());
