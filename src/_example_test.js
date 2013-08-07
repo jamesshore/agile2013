@@ -7,9 +7,35 @@
 
 	describe("Example", function() {
 
-		it("should pass", function() {
-			expect(true).to.be(true);
+		var textField;
+		var submitLink;
+
+		beforeEach(function() {
+			document.body.insertAdjacentHTML("beforeend",
+				"<input id='textField' type='text' />" +
+				"<a id='submitLink' href='#foo'>Link</a>"
+			);
+			textField = document.getElementById("textField");
+			submitLink = document.getElementById("submitLink");
+
+			example.initializeValidation(textField, submitLink);
 		});
+
+		afterEach(function() {
+			document.body.removeChild(textField);
+			document.body.removeChild(submitLink);
+		});
+
+		it("sets CSS class when field is empty", function() {
+			clickSubmitLink();
+			expect(textField.getAttribute("class")).to.equal(example.REQUIRED_FIELD_CLASS);
+		});
+
+		function clickSubmitLink() {
+			var event = document.createEvent("MouseEvent");
+			event.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+			submitLink.dispatchEvent(event);
+		}
 
 	});
 }());
